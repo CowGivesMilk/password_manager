@@ -15,6 +15,7 @@ set(HEADERS
 )
 set(TESTS
     tests/password_generator.cpp
+    tests/input_validator.cpp
 )
 
 # MAKING STATIC LIBRARY NAMED AS core_lib 
