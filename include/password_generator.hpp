@@ -2,20 +2,21 @@
 #define PASSWORD_GENERATOR_H
 
 #include <array>
-#include <experimental/random>
 #include <iostream>
+#include <random>
 #include <string>
 
 class PasswordGenerator {
  private:
-  bool special_characters;
+  bool numbers;
   bool small;
   bool capital;
-  bool numbers;
+  bool special_characters;
   const std::array<char, 32> symbols = {
       '!', '"',  '#', '$', '%', '&', '\'', '(', ')', '*', '+',
       ',', '-',  '.', '/', ':', ';', '<',  '=', '>', '?', '@',
       '[', '\\', ']', '^', '_', '`', '{',  '|', '}', '~'};
+  std::mt19937 rng;
 
   char getRandomNumber();
   char getRandomSmall();
@@ -24,6 +25,8 @@ class PasswordGenerator {
 
  public:
   PasswordGenerator();
+  PasswordGenerator(bool numbers, bool small, bool capital,
+                    bool special_characters);
   std::string generatePassword(size_t length);
 };
 

@@ -1,51 +1,69 @@
 #include "password_generator.hpp"
 
 #include <array>
-#include <experimental/random>
+#include <functional>
 #include <iostream>
+#include <random>
 
-PasswordGenerator::PasswordGenerator() {
-  special_characters = true;
-  small = true;
-  capital = true;
-  numbers = true;
+PasswordGenerator::PasswordGenerator()
+    : numbers(true),
+      small(true),
+      capital(true),
+      special_characters(true),
+      rng(std::random_device{}()) {}
+
+PasswordGenerator::PasswordGenerator(bool numbers, bool small, bool capital,
+                                     bool special_characters)
+    : numbers(numbers),
+      small(small),
+      capital(capital),
+      special_characters(special_characters),
+      rng(std::random_device{}()) {
+  if (not(numbers || small || capital || special_characters)) {
+    std::cout << "All fields can't be abscent so switching small alphabets on."
+              << std::endl;
+    this->small = true;
+  }
 }
 
 char PasswordGenerator::getRandomSymbol() {
   int lower = 0, upper = this->symbols.size() - 1;
-  return symbols[std::experimental::randint(lower, upper)];
+  std::uniform_int_distribution<size_t> dist(lower, upper);
+  return symbols[dist(rng)];
 }
 char PasswordGenerator::getRandomNumber() {
-  return std::experimental::randint(int('0'), int('9'));
+  std::uniform_int_distribution<int> dist(int('0'), int('9'));
+  return dist(rng);
 }
 char PasswordGenerator::getRandomCapital() {
-  char res = std::experimental::randint(int('A'), int('Z'));
-  return res;
+  std::uniform_int_distribution<int> dist(int('A'), int('Z'));
+  return dist(rng);
 }
 char PasswordGenerator::getRandomSmall() {
-  char res = std::experimental::randint(int('a'), int('z'));
-  return res;
+  std::uniform_int_distribution<int> dist(int('a'), int('z'));
+  return dist(rng);
 }
 
 std::string PasswordGenerator::generatePassword(size_t length) {
+  if (length > 999) {
+    std::cout << "You don't need that long password.\nReturning 256 character "
+                 "long password instead!"
+              << std::endl;
+    length = 256;
+  }
   std::string password;
   password.reserve(length);
-  while (length != password.length()) {
-    int option = std::experimental::randint(0, 3);
-    switch (option) {
-      case 0:
-        password.push_back(getRandomSymbol());
-        break;
-      case 1:
-        password.push_back(getRandomSmall());
-        break;
-      case 2:
-        password.push_back(getRandomCapital());
-        break;
-      case 3:
-        password.push_back(getRandomNumber());
-        break;
-    }
+  std::vector<std::function<char()>> char_generators;
+  if (numbers)
+    char_generators.push_back([this]() { return getRandomNumber(); });
+  if (small) char_generators.push_back([this]() { return getRandomSmall(); });
+  if (capital)
+    char_generators.push_back([this]() { return getRandomCapital(); });
+  if (special_characters)
+    char_generators.push_back([this]() { return getRandomSymbol(); });
+  std::uniform_int_distribution<int> dist(0, char_generators.size() - 1);
+  for (size_t i = 0; i < length; i++) {
+    password.push_back(char_generators[dist(rng)]());
   }
   return password;
 }
