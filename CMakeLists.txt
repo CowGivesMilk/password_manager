@@ -14,22 +14,22 @@ set(HEADERS
     include/input_validator.hpp
 )
 set(TESTS
-    tests/test.cpp
+    tests/password_generator.cpp
 )
 
-# MAKING STATIC LIBRARY NAMED AS core 
-add_library(core STATIC ${SOURCES} ${HEADERS})
-target_include_directories(core PUBLIC include)
+# MAKING STATIC LIBRARY NAMED AS core_lib 
+add_library(core_lib STATIC ${SOURCES} ${HEADERS})
+target_include_directories(core_lib PUBLIC include)
 
 # MAKING MAIN EXECUTABLE 
 add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE core)
+target_link_libraries(${PROJECT_NAME} PRIVATE core_lib)
 
 
 ###########  TESTING   #################
 # These tests can use the Catch2-provided main
 add_executable(tests ${TESTS})
-target_link_libraries(tests PRIVATE core Catch2::Catch2WithMain)
+target_link_libraries(tests PRIVATE core_lib Catch2::Catch2WithMain)
 
 
 # These tests need their own main
