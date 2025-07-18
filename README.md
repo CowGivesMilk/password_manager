@@ -1,0 +1,1 @@
+It is an attempt to make a password manager in C++
