@@ -1,60 +1,58 @@
-cmake_minimum_required(VERSION 4.0)  
+cmake_minimum_required(VERSION 3.16)
 project(password_manager LANGUAGES CXX)
 
+# Use C++23
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-find_package(Catch2 3 REQUIRED) # FOR TESTING
+
+# Strict warnings
+function(apply_warnings target)
+    if (MSVC)
+        target_compile_options(${target} PRIVATE /W4 /WX /permissive-)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    endif()
+endfunction()
+
+# Include directory
+include_directories(include)
+
+# ========== Source Files ==========
 set(SOURCES
     src/password_generator.cpp
     src/input_validator.cpp
+    src/file_handler.cpp
 )
 
 set(HEADERS
     include/password_generator.hpp
     include/input_validator.hpp
+    include/file_handler.hpp
 )
-set(TESTS
+
+# ========== Core Static Library ==========
+add_library(core_lib STATIC ${SOURCES} ${HEADERS})
+target_include_directories(core_lib PUBLIC include)
+apply_warnings(core_lib)
+
+# ========== Main Executable ==========
+add_executable(password_manager main.cpp)
+target_link_libraries(password_manager PRIVATE core_lib)
+apply_warnings(password_manager)
+
+# ========== Testing ==========
+# Requires: sudo pacman -S catch2 or manually install Catch2 v3
+find_package(Catch2 3 REQUIRED)
+
+set(TEST_SOURCES
     tests/password_generator.cpp
     tests/input_validator.cpp
 )
 
-# MAKING STATIC LIBRARY NAMED AS core_lib 
-add_library(core_lib STATIC ${SOURCES} ${HEADERS})
-target_include_directories(core_lib PUBLIC include)
-
-# MAKING MAIN EXECUTABLE 
-add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE core_lib)
-
-
-###########  TESTING   #################
-# These tests can use the Catch2-provided main
-add_executable(tests ${TESTS})
+add_executable(tests ${TEST_SOURCES})
 target_link_libraries(tests PRIVATE core_lib Catch2::Catch2WithMain)
-
-
-# These tests need their own main
-#add_executable(custom-main-tests test.cpp test-main.cpp)
-#target_link_libraries(custom-main-tests PRIVATE Catch2::Catch2)
+apply_warnings(tests)
 
 include(CTest)
 include(Catch)
 catch_discover_tests(tests)
-
-########################################################
-
-if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE 
-        /W4     # High warning level
-        /WX     # Treat warnings as errors
-        /permissive-  # Standards conformance
-    )
-else()
-    # GCC/Clang flags
-    target_compile_options(${PROJECT_NAME} PRIVATE 
-        -Wall
-        -Wextra
-        -pedantic
-        -Werror  # Treat warnings as errors
-    )
-endif()

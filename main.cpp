@@ -1,11 +1,14 @@
 #include <iostream>
 
+#include "file_handler.hpp"
 #include "input_validator.hpp"
 #include "password_generator.hpp"
 
 int main(int argc, char** argv) {
   PasswordGenerator obj;
   size_t length;
+
+  std::string file_path = "../data/password.csv";  // default
 
   if (argc == 1) {
     std::string input;
@@ -15,15 +18,27 @@ int main(int argc, char** argv) {
       std::cerr << "Please input a valid positive integer" << std::endl;
       return 1;
     }
-  } else {
+  } else if (argc >= 2) {
     if (!parse_size_t(argv[1], length)) {
       std::cerr << "Please input a valid positive integer as arg[1]"
                 << std::endl;
       return 1;
     }
+
+    if (argc >= 3) {
+      file_path = argv[2];  // use user-provided path
+    }
   }
 
-  std::cout << obj.generatePassword(length) << std::endl;
+  std::string username = "nimes", password = "Not_my_password",
+              site = "https://www.archlinux.org";
+  Entry entry(username, password, site);
+
+  FileHandler database(file_path);
+  if (database.add_entry(entry))
+    std::cout << "Successfully added entry\n";
+  else
+    std::cout << "Failed to add entry\n";
 
   return 0;
 }
