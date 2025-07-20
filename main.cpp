@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  std::string username = "nimes", password = "Not_my_password",
+  std::string username = "nimes", password = obj.generatePassword(length),
               site = "https://www.archlinux.org";
   Entry entry(username, password, site);
 
