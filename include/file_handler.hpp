@@ -8,14 +8,16 @@ class Entry {
   std::string username, password, site;
   Entry(const std::string username, const std::string password,
         const std::string site);
+  const std::string to_string() const;
 };
 class FileHandler {
  private:
   std::string file_path;
 
  public:
-  FileHandler(const std::string file_path) : file_path(file_path) {}
+  FileHandler(const std::string file_path);
   bool add_entry(const Entry& entry);
+  std::string get_file_path() const;
 };
 
 #endif  // FILE_HANDLER_H

@@ -43,10 +43,14 @@ apply_warnings(password_manager)
 # ========== Testing ==========
 # Requires: sudo pacman -S catch2 or manually install Catch2 v3
 find_package(Catch2 3 REQUIRED)
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/data")
 
+# Generate the test CSV file
+file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/data/test_password.csv" CONTENT "")
 set(TEST_SOURCES
     tests/password_generator.cpp
     tests/input_validator.cpp
+    tests/file_handler.cpp
 )
 
 add_executable(tests ${TEST_SOURCES})
