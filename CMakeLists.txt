@@ -22,12 +22,14 @@ set(SOURCES
     src/password_generator.cpp
     src/input_validator.cpp
     src/file_handler.cpp
+    src/helper_functions.cpp
 )
 
 set(HEADERS
     include/password_generator.hpp
     include/input_validator.hpp
     include/file_handler.hpp
+    include/helper_functions.hpp
 )
 
 # ========== Core Static Library ==========
@@ -36,6 +38,7 @@ target_include_directories(core_lib PUBLIC include)
 apply_warnings(core_lib)
 
 # ========== Main Executable ==========
+file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/data/password.csv" CONTENT "")
 add_executable(password_manager main.cpp)
 target_link_libraries(password_manager PRIVATE core_lib)
 apply_warnings(password_manager)
