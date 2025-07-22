@@ -20,14 +20,12 @@ include_directories(include)
 # ========== Source Files ==========
 set(SOURCES
     src/password_generator.cpp
-    src/input_validator.cpp
     src/file_handler.cpp
     src/helper.cpp
 )
 
 set(HEADERS
     include/password_generator.hpp
-    include/input_validator.hpp
     include/file_handler.hpp
     include/helper.hpp
 )
@@ -52,8 +50,8 @@ file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/data")
 file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/data/test_password.csv" CONTENT "")
 set(TEST_SOURCES
     tests/password_generator.cpp
-    tests/input_validator.cpp
     tests/file_handler.cpp
+    tests/helper.cpp
 )
 
 add_executable(tests ${TEST_SOURCES})

@@ -2,25 +2,24 @@
 
 #include "file_handler.hpp"
 #include "helper.hpp"
-#include "input_validator.hpp"
 #include "password_generator.hpp"
 
 int main(int argc, char** argv) {
   PasswordGenerator obj;
   size_t length;
 
-  std::string file_path = Helper::get_db_path(argv[0]);  // default
+  std::string file_path = helper::get_db_path(argv[0]);  // default
 
   if (argc == 1) {
     std::string input;
     std::cout << "Length: ";
     std::getline(std::cin, input);
-    if (!parse_size_t(input, length)) {
+    if (!helper::parse_size_t(input, length)) {
       std::cerr << "Please input a valid positive integer" << std::endl;
       return 1;
     }
   } else if (argc >= 2) {
-    if (!parse_size_t(argv[1], length)) {
+    if (!helper::parse_size_t(argv[1], length)) {
       std::cerr << "Please input a valid positive integer as arg[1]"
                 << std::endl;
       return 1;
