@@ -22,14 +22,14 @@ set(SOURCES
     src/password_generator.cpp
     src/input_validator.cpp
     src/file_handler.cpp
-    src/helper_functions.cpp
+    src/helper.cpp
 )
 
 set(HEADERS
     include/password_generator.hpp
     include/input_validator.hpp
     include/file_handler.hpp
-    include/helper_functions.hpp
+    include/helper.hpp
 )
 
 # ========== Core Static Library ==========

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "file_handler.hpp"
-#include "helper_functions.hpp"
+#include "helper.hpp"
 #include "input_validator.hpp"
 #include "password_generator.hpp"
 
@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
   PasswordGenerator obj;
   size_t length;
 
-  std::string file_path = get_db_path(argv[0]);  // default
+  std::string file_path = Helper::get_db_path(argv[0]);  // default
 
   if (argc == 1) {
     std::string input;
