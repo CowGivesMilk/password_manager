@@ -40,3 +40,10 @@ std::array<CryptoPP::byte, 32> EncDec::generate_key_from_salt(
                   password.size(), salt.data(), salt.size(), 100'000, 0);
   return key;
 }
+std::array<CryptoPP::byte, 12> EncDec::generate_nonce() {
+  std::array<CryptoPP::byte, 12> nonce;
+  CryptoPP::AutoSeededRandomPool prng;
+
+  prng.GenerateBlock(nonce.data(), nonce.size());
+  return nonce;
+}
