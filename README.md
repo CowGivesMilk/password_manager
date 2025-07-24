@@ -10,8 +10,9 @@ I am just writing APIs for the core functionality to make an GUI wrapper around 
 
 ## Dependencies
 1. clang, gcc or MSVC
-2. cmake
+2. cmake & make
 3. catch2
+4. crypto++
 
 ## 🔨 Building
 ### Linux/MacOS

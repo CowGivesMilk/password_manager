@@ -1,6 +1,8 @@
-#! /bin/sh
+#! /bin/bash
 mkdir -p build
 cd build
 cmake ..
 make -j 8
-./tests
+if [ $? -eq 0 ]; then
+ ./tests
+fi
