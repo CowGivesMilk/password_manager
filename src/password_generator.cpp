@@ -2,7 +2,7 @@
 
 #include <array>
 #include <functional>
-#include <iostream>
+#include <print>
 #include <random>
 
 PasswordGenerator::PasswordGenerator()
@@ -20,8 +20,8 @@ PasswordGenerator::PasswordGenerator(bool numbers, bool small, bool capital,
       special_characters(special_characters),
       rng(std::random_device{}()) {
   if (not(numbers || small || capital || special_characters)) {
-    std::cout << "All fields can't be abscent so switching small alphabets on."
-              << std::endl;
+    std::println(
+        "All fields can't be abscent so switching small alphabets on.");
     this->small = true;
   }
 }
@@ -46,9 +46,9 @@ char PasswordGenerator::getRandomSmall() {
 
 std::string PasswordGenerator::generatePassword(size_t length) {
   if (length > 999) {
-    std::cout << "You don't need that long password.\nReturning 256 character "
-                 "long password instead!"
-              << std::endl;
+    std::println(
+        "You don't need that long password.\nReturning 256 character long "
+        "password instead!");
     length = 256;
   }
   std::string password;

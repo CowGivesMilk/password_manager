@@ -49,8 +49,8 @@ apply_warnings(password_manager)
 # Make sure Catch2 v3 is installed: sudo pacman -S catch2
 find_package(Catch2 3 REQUIRED)
 
-file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/data")
-file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/data/test_password.csv" CONTENT "")
+# file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/data")
+# file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/data/test_password.csv" CONTENT "")
 
 set(TEST_SOURCES
     tests/password_generator.cpp

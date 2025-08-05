@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
-#include <iostream>
+#include <print>
 #include <string>
 
 Entry::Entry(const std::string username, const std::string password,
@@ -19,7 +19,7 @@ FileHandler::FileHandler(const std::string file_path) : file_path(file_path) {}
 bool FileHandler::add_entry(const Entry& entry) {
   std::ofstream out_file(this->get_file_path(), std::ios::app);
   if (!out_file) {
-    std::cerr << "Error Cannot open file\n";
+    std::println("Error Cannot open file");
     return false;
   }
   if (std::filesystem::file_size(this->get_file_path()) ==
