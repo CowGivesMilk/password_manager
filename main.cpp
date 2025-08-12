@@ -2,11 +2,9 @@
 #include <print>
 
 #include "enc_dec.hpp"
-#include "file_handler.hpp"
-#include "helper.hpp"
 #include "password_generator.hpp"
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   std::string password;
   if (argc == 1) {
     std::print("Enter the passowrd: ");

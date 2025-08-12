@@ -13,13 +13,11 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <vector>
-
 const size_t ITERATIONS = 100000;
-const CryptoPP::byte PURPOSE = 0;  // No purpose
+const CryptoPP::byte PURPOSE = 0; // No purpose
 
 std::pair<std::array<CryptoPP::byte, 32>, std::array<CryptoPP::byte, 16>>
-EncDec::generate_key_salt(const std::string& password) {
+EncDec::generate_key_salt(const std::string &password) {
   std::pair<std::array<CryptoPP::byte, 32>, std::array<CryptoPP::byte, 16>>
       result;
 
@@ -30,20 +28,21 @@ EncDec::generate_key_salt(const std::string& password) {
   // Key derivation using PBKDF2-HMAC-SHA256
   CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
   pbkdf.DeriveKey(result.first.data(), result.first.size(), PURPOSE,
-                  reinterpret_cast<const CryptoPP::byte*>(password.data()),
+                  reinterpret_cast<const CryptoPP::byte *>(password.data()),
                   password.size(), result.second.data(), result.second.size(),
-                  ITERATIONS,  // Iteration count
-                  0);          // Default flags
+                  ITERATIONS, // Iteration count
+                  0);         // Default flags
 
   return result;
 }
 
-std::array<CryptoPP::byte, 32> EncDec::generate_key_from_salt(
-    const std::string& password, const std::array<CryptoPP::byte, 16>& salt) {
+std::array<CryptoPP::byte, 32>
+EncDec::generate_key_from_salt(const std::string &password,
+                               const std::array<CryptoPP::byte, 16> &salt) {
   std::array<CryptoPP::byte, 32> key;
   CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
   pbkdf.DeriveKey(key.data(), key.size(), PURPOSE,
-                  reinterpret_cast<const CryptoPP::byte*>(password.data()),
+                  reinterpret_cast<const CryptoPP::byte *>(password.data()),
                   password.size(), salt.data(), salt.size(), ITERATIONS, 0);
   return key;
 }
@@ -54,10 +53,10 @@ std::array<CryptoPP::byte, 12> EncDec::generate_nonce() {
   prng.GenerateBlock(nonce.data(), nonce.size());
   return nonce;
 }
-void EncDec::encrypt(const std::string& file_path,
-                     const std::array<CryptoPP::byte, 32>& key,
-                     const std::array<CryptoPP::byte, 16>& salt,
-                     const std::array<CryptoPP::byte, 12>& nonce) {
+void EncDec::encrypt(const std::string &file_path,
+                     const std::array<CryptoPP::byte, 32> &key,
+                     const std::array<CryptoPP::byte, 16> &salt,
+                     const std::array<CryptoPP::byte, 12> &nonce) {
   std::ifstream in(file_path, std::ios::binary);
   if (!in) {
     throw std::runtime_error("Error opening file");
@@ -82,11 +81,11 @@ void EncDec::encrypt(const std::string& file_path,
     ef.ChannelMessageEnd("AAD");
 
     ef.ChannelPut("",
-                  reinterpret_cast<const CryptoPP::byte*>(plain_text.data()),
+                  reinterpret_cast<const CryptoPP::byte *>(plain_text.data()),
                   plain_text.size());
 
     ef.ChannelMessageEnd("");
-  } catch (const CryptoPP::Exception& e) {
+  } catch (const CryptoPP::Exception &e) {
     throw std::runtime_error("Encryption Error: " + std::string(e.what()));
   }
   std::string out_path = file_path + ".enc";
@@ -94,15 +93,15 @@ void EncDec::encrypt(const std::string& file_path,
   if (!out) {
     throw std::runtime_error("Error creating output file");
   }
-  out.write(reinterpret_cast<const char*>(salt.data()), salt.size());
+  out.write(reinterpret_cast<const char *>(salt.data()), salt.size());
   out.write(cipher_text.data(), cipher_text.size());
-  out.write(reinterpret_cast<const char*>(TAG.data()), TAG.size());
+  out.write(reinterpret_cast<const char *>(TAG.data()), TAG.size());
   out.close();
 }
 
-void EncDec::decrypt(const std::string& encrypted_file_path,
-                     const std::array<CryptoPP::byte, 32>& key,
-                     const std::array<CryptoPP::byte, 12>& nonce) {
+void EncDec::decrypt(const std::string &encrypted_file_path,
+                     const std::array<CryptoPP::byte, 32> &key,
+                     const std::array<CryptoPP::byte, 12> &nonce) {
   // Read encrypted file
   std::ifstream in(encrypted_file_path, std::ios::binary);
   if (!in) {
@@ -114,21 +113,21 @@ void EncDec::decrypt(const std::string& encrypted_file_path,
   in.seekg(0, std::ios::beg);
 
   // Verify minimum file size (salt + tag)
-  const size_t MIN_SIZE = 16 + 16;  // salt + tag
+  const size_t MIN_SIZE = 16 + 16; // salt + tag
   if (size < MIN_SIZE) {
     throw std::runtime_error("Invalid encrypted file format");
   }
 
   // Read file components
   std::array<CryptoPP::byte, 16> salt;
-  in.read(reinterpret_cast<char*>(salt.data()), salt.size());
+  in.read(reinterpret_cast<char *>(salt.data()), salt.size());
 
   const size_t ciphertext_size = size - salt.size() - 16;
   std::string ciphertext(ciphertext_size, '\0');
   in.read(&ciphertext[0], ciphertext_size);
 
   std::array<CryptoPP::byte, 16> tag;
-  in.read(reinterpret_cast<char*>(tag.data()), tag.size());
+  in.read(reinterpret_cast<char *>(tag.data()), tag.size());
   in.close();
 
   // Setup decryption
@@ -143,7 +142,7 @@ void EncDec::decrypt(const std::string& encrypted_file_path,
         decryptor, new CryptoPP::StringSink(plaintext),
         CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN |
             CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION,
-        16  // tag size
+        16 // tag size
     );
 
     // Critical: Process components in EXACT order:
@@ -156,15 +155,15 @@ void EncDec::decrypt(const std::string& encrypted_file_path,
 
     // 3. Provide ciphertext
     df.ChannelPut("",
-                  reinterpret_cast<const CryptoPP::byte*>(ciphertext.data()),
+                  reinterpret_cast<const CryptoPP::byte *>(ciphertext.data()),
                   ciphertext.size());
     df.ChannelMessageEnd("");
 
     // If we reach here, verification succeeded
-  } catch (const CryptoPP::HashVerificationFilter::HashVerificationFailed&) {
+  } catch (const CryptoPP::HashVerificationFilter::HashVerificationFailed &) {
     throw std::runtime_error(
         "Decryption failed: Authentication tag verification failed");
-  } catch (const CryptoPP::Exception& e) {
+  } catch (const CryptoPP::Exception &e) {
     throw std::runtime_error("Decryption error: " + std::string(e.what()));
   }
 
