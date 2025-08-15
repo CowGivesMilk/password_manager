@@ -21,33 +21,31 @@ int main(int argc, char **argv) {
 
   std::println("First Key");
   for (auto c : key_salt.first) {
-    std::print("{} ", static_cast<uint8_t>(c));
+    std::print("{:X} ", static_cast<uint8_t>(c));
   }
   std::println();
 
   std::println("Salt");
   for (auto c : key_salt.second) {
-    std::print("{} ", static_cast<uint8_t>(c));
+    std::print("{:X} ", static_cast<uint8_t>(c));
   }
   std::println();
 
   std::println("Key from salt");
   for (auto c : key_from_salt) {
-    std::print("{} ", static_cast<uint8_t>(c));
+    std::print("{:X} ", static_cast<uint8_t>(c));
   }
   std::println();
 
   std::println("nonce");
   for (auto c : nonce) {
-    std::print("{} ", static_cast<uint8_t>(c));
+    std::print("{:X} ", static_cast<uint8_t>(c));
   }
+  std::println();
   const std::string orignal_file_path =
-      "/home/nimes/Documents/password_manager/poem.txt";
-  // const std::string encrypted_file_path =
-  // "/home/nimes/Documents/password_manager/poem.txt.enc";
-  EncDec::encrypt(orignal_file_path, key_salt.first, key_salt.second, nonce);
-
-  // EncDec::decrypt(encrypted_file_path, key_salt.first, nonce);
+      "/home/nimes/Documents/projects/password_manager/poem.txt";
+  EncDec::encrypt(orignal_file_path, key_salt.first, nonce);
+  EncDec::decrypt(orignal_file_path + ".enc", key_salt.first);
   std::println();
   PasswordGenerator pg(true, true, true, true);
   std::println("Random Characters: {}", pg.generatePassword(8));
