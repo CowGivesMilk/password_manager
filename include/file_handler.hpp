@@ -2,15 +2,29 @@
 #define FILE_HANDLER_H
 #include <cryptopp/aes.h>
 
+#include <chrono>
 #include <filesystem>
+#include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
 #include <vector>
+using json = nlohmann::json;
 class Entry {
+ private:
+  std::optional<std::string> title, username, password, site, notes;
+  std::optional<std::vector<std::string>> tags;
+  std::optional<std::chrono::sys_time<std::chrono::seconds>> exp_time;
+
  public:
-  std::string username, password, site;
-  Entry(const std::string username, const std::string password,
-        const std::string site);
+  Entry(const std::optional<std::string>& title,
+        const std::optional<std::string>& username,
+        const std::optional<std::string>& password,
+        const std::optional<std::string>& site,
+        const std::optional<std::vector<std::string>>& tags,
+        const std::optional<std::chrono::sys_time<std::chrono::seconds>>&
+            exp_time);
   const std::string to_string() const;
+  json to_json() const;
 };
 class FileHandler {
  private:
@@ -23,14 +37,7 @@ class FileHandler {
   static std::string read_file(
       const std::filesystem::path path);  // Reads full file
   static std::string read_file(const std::string path);
-  static std::array<CryptoPP::byte, 12> read_nonce(
-      const std::filesystem::path path);
-  static std::array<CryptoPP::byte, 12> read_nonce(const std::string file_path);
-  static std::array<CryptoPP::byte, 16> read_tag(
-      const std::filesystem::path path);
-  static std::array<CryptoPP::byte, 16> read_tag(const std::string file_path);
-  static std::string read_file_data(const std::filesystem::path path);
-  static std::string read_file_data(const std::string file_path);
+  std::string read_file();
 };
 
 #endif  // FILE_HANDLER_H

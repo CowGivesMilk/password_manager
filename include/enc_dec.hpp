@@ -3,6 +3,7 @@
 #include <cryptopp/aes.h>
 
 #include <array>
+#include <optional>
 #include <string>
 class EncDec {
  public:
@@ -17,7 +18,7 @@ class EncDec {
   static bool encrypt(const std::string &file_path,
                       const std::array<CryptoPP::byte, 32> &key,
                       const std::array<CryptoPP::byte, 12> &nonce);
-  static bool decrypt(const std::string &file_path,
-                      const std::array<CryptoPP::byte, 32> &key);
+  static std::optional<std::string> decrypt(
+      const std::string &file_path, const std::array<CryptoPP::byte, 32> &key);
 };
 #endif  // ENC_DEC_H

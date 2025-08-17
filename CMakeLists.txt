@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 project(password_manager LANGUAGES CXX)
 
-# Use C++23
+# -------------------- C++ Standard --------------------
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Strict warning function
+# -------------------- Strict Warnings --------------------
 function(apply_warnings target)
     if (MSVC)
         target_compile_options(${target} PRIVATE /W4 /WX /permissive-)
@@ -14,7 +14,7 @@ function(apply_warnings target)
     endif()
 endfunction()
 
-# ================== Source & Header Files ==================
+# -------------------- Source & Header Files --------------------
 set(SOURCES
     src/password_generator.cpp
     src/file_handler.cpp
@@ -29,28 +29,29 @@ set(HEADERS
     include/enc_dec.hpp
 )
 
-# ================== Core Static Library ==================
+# -------------------- Core Static Library --------------------
 add_library(core_lib STATIC ${SOURCES} ${HEADERS})
 target_include_directories(core_lib PUBLIC include)
 
-# Link Crypto++ manually
+# -------------------- Find & Link Dependencies --------------------
+# Crypto++
 find_library(CRYPTOPP_LIB NAMES cryptopp REQUIRED)
 target_link_libraries(core_lib PUBLIC ${CRYPTOPP_LIB})
 
+# nlohmann-json (header-only)
+find_package(nlohmann_json REQUIRED)
+target_link_libraries(core_lib PUBLIC nlohmann_json::nlohmann_json)
+
 apply_warnings(core_lib)
 
-# ================== Main Executable ==================
+# -------------------- Main Executable --------------------
 file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/data/password.csv" CONTENT "")
 add_executable(password_manager main.cpp)
 target_link_libraries(password_manager PRIVATE core_lib)
 apply_warnings(password_manager)
 
-# ================== Unit Tests ==================
-# Make sure Catch2 v3 is installed: sudo pacman -S catch2
+# -------------------- Unit Tests --------------------
 find_package(Catch2 3 REQUIRED)
-
-# file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/data")
-# file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/data/test_password.csv" CONTENT "")
 
 set(TEST_SOURCES
     tests/password_generator.cpp
@@ -66,8 +67,3 @@ apply_warnings(tests)
 include(CTest)
 include(Catch)
 catch_discover_tests(tests)
-
-# ================== Optional: Install Rules ==================
-# install(TARGETS password_manager RUNTIME DESTINATION bin)
-# install(TARGETS core_lib ARCHIVE DESTINATION lib)
-# install(DIRECTORY include/ DESTINATION include)

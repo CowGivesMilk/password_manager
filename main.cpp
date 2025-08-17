@@ -1,9 +1,13 @@
+#include <chrono>
 #include <iostream>
+#include <optional>
 #include <print>
+#include <string>
 
 #include "enc_dec.hpp"
+#include "file_handler.hpp"
 #include "password_generator.hpp"
-
+using namespace std::chrono_literals;
 int main(int argc, char **argv) {
   std::string password;
   if (argc == 1) {
@@ -49,5 +53,8 @@ int main(int argc, char **argv) {
   std::println();
   PasswordGenerator pg(true, true, true, true);
   std::println("Random Characters: {}", pg.generatePassword(8));
+  Entry e("My Title", "user123", std::nullopt, "example.com", std::nullopt,
+          std::nullopt);
+  std::println("{}", e.to_string());
   return 0;
 }

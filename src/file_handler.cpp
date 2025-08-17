@@ -8,12 +8,33 @@
 #include <print>
 #include <string>
 
-Entry::Entry(const std::string username, const std::string password,
-             const std::string site)
-    : username(username), password(password), site(site) {}
+Entry::Entry(
+    const std::optional<std::string>& title,
+    const std::optional<std::string>& username,
+    const std::optional<std::string>& password,
+    const std::optional<std::string>& site,
+    const std::optional<std::vector<std::string>>& tags,
+    const std::optional<std::chrono::sys_time<std::chrono::seconds>>& exp_time)
+    : title(title),
+      username(username),
+      password(password),
+      site(site),
+      tags(tags),
+      exp_time(exp_time) {}
 
 const std::string Entry::to_string() const {
-  return std::format("{} {} {}", this->site, this->username, this->password);
+  std::string date_time{}, tags_string{};
+  if (exp_time.has_value()) {
+    date_time = std::format("%d %b %Y %T", exp_time.value());
+  }
+  if (tags.has_value()) {
+    std::for_each(tags.value().begin(), tags.value().end(),
+                  [&tags_string](std::string tag) { tags_string.append(tag); });
+  }
+  return std::format(
+      "Title: {}\nUsername: {}\nPassword: {}\nSite: {}\nDate Time: {}",
+      title.value_or(""), username.value_or(""), password.value_or(""),
+      site.value_or(""), date_time, tags_string);
 }
 
 FileHandler::FileHandler(const std::string file_path) : file_path(file_path) {}
@@ -52,74 +73,10 @@ std::string FileHandler::read_file(const std::filesystem::path path) {
 std::string FileHandler::read_file(const std::string path) {
   return FileHandler::read_file(std::filesystem::path(path));
 }
-std::array<CryptoPP::byte, 12> FileHandler::read_nonce(
-    const std::filesystem::path path) {
-  std::ifstream file(path, std::ios::binary);
-  if (!file.is_open()) {
-    throw std::runtime_error("Failed to open file: " + path.string());
-  }
-  const size_t FILE_SIZE = std::filesystem::file_size(path);
-  if (FILE_SIZE < 12 + 16) {
-    throw std::runtime_error(
-        "File is invalid File does not contain IV and/or TAG " + path.string());
-  }
-  std::array<CryptoPP::byte, 12> nonce;
-  file.seekg(0);
-  if (!file) {
-    throw std::runtime_error("Seek to start position failed");
-  }
-  file.read((char*)nonce.data(), 12);
-  return nonce;
+std::string FileHandler::read_file() {
+  return FileHandler::read_file(this->get_file_path());
 }
-std::array<CryptoPP::byte, 12> FileHandler::read_nonce(
-    const std::string file_path) {
-  std::filesystem::path path(file_path);
-  return FileHandler::read_nonce(path);
-}
-std::array<CryptoPP::byte, 16> FileHandler::read_tag(
-    const std::filesystem::path path) {
-  std::ifstream file(path, std::ios::binary);
-  if (!file.is_open()) {
-    throw std::runtime_error("Failed to open file: " + path.string());
-  }
-  const size_t FILE_SIZE = std::filesystem::file_size(path);
-  if (FILE_SIZE < 12 + 16) {
-    throw std::runtime_error(
-        "File is invalid File does not contain IV and/or TAG " + path.string());
-  }
-  std::array<CryptoPP::byte, 16> nonce;
-  file.seekg(FILE_SIZE - 16);
-  if (!file) {
-    throw std::runtime_error("Seek to start position failed");
-  }
-  file.read((char*)nonce.data(), 16);
-  return nonce;
-}
-std::array<CryptoPP::byte, 16> FileHandler::read_tag(
-    const std::string file_path) {
-  std::filesystem::path path(file_path);
-  return FileHandler::read_tag(path);
-}
-std::string FileHandler::read_file_data(const std::filesystem::path path) {
-  std::ifstream file(path, std::ios::binary);
-  if (!file.is_open()) {
-    throw std::runtime_error("Failed to open file: " + path.string());
-  }
-  const size_t FILE_SIZE = std::filesystem::file_size(path);
-  if (FILE_SIZE < 12 + 16) {
-    throw std::runtime_error(
-        "File is invalid File does not contain IV and/or TAG " + path.string());
-  }
-
-  std::string edata(FILE_SIZE - 12 - 16, '\0');
-  file.seekg(12);
-  if (!file.is_open()) {
-    std::runtime_error("Can not seek to start of data after IV: " +
-                       path.string());
-  }
-  file.read(edata.data(), edata.size());
-  return edata;
-}
-std::string FileHandler::read_file_data(const std::string file_path) {
-  return FileHandler::read_file_data(std::filesystem::path(file_path));
+json Entry::to_json() const {
+  json j;
+  return j;
 }

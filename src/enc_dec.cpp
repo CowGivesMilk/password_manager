@@ -12,6 +12,7 @@
 #include <array>
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <print>
 #include <string>
 
@@ -80,12 +81,13 @@ bool EncDec::encrypt(const std::string &file_path,
   return encrypted_file.good();
 }
 
-bool EncDec::decrypt(const std::string &encrypted_file_path,
-                     const std::array<CryptoPP::byte, 32> &key) {
+std::optional<std::string> EncDec::decrypt(
+    const std::string &encrypted_file_path,
+    const std::array<CryptoPP::byte, 32> &key) {
   std::string cipher = FileHandler::read_file(encrypted_file_path);
   if (cipher.size() <= 12 + 16) {  // Check nonce + min ciphertext + MAC
     std::cerr << "Invalid file size\n";
-    return false;
+    return std::nullopt;
   }
 
   // Extract components
@@ -111,8 +113,5 @@ bool EncDec::decrypt(const std::string &encrypted_file_path,
   decryption_filter.Put((const CryptoPP::byte *)enc.data(), enc.size());
   decryption_filter.MessageEnd();
 
-  // std::cout << recovered << std::endl;
-  std::ofstream recovered_file(encrypted_file_path + ".dec", std::ios::binary);
-  recovered_file.write(recovered.data(), recovered.size());
-  return true;
+  return recovered;
 }

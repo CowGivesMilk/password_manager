@@ -31,6 +31,7 @@ I am just writing APIs for the core functionality to make an GUI wrapper around 
 2. cmake & make
 3. catch2
 4. crypto++
+5. nlohmann-json
 
 ## 🔨 Building
 ### Linux/MacOS
