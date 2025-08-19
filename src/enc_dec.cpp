@@ -50,7 +50,7 @@ std::array<CryptoPP::byte, 32> EncDec::generate_key_from_salt(
                   password.size(), salt.data(), salt.size(), ITERATIONS, 0);
   return key;
 }
-std::array<CryptoPP::byte, 12> EncDec::generate_nonce() {
+std::array<CryptoPP::byte, 12> EncDec::generate_nonce() noexcept {
   std::array<CryptoPP::byte, 12> nonce;
   CryptoPP::AutoSeededRandomPool prng;
 
@@ -98,6 +98,7 @@ std::string EncDec::decrypt(const std::string &encrypted_file_path,
     throw std::runtime_error(
         "File is too small to contain [IV cipher_text MAC]");
   }
+  std::string recovered;
   try {
     // Extract components
     std::array<CryptoPP::byte, 12> nonce;
@@ -109,7 +110,6 @@ std::string EncDec::decrypt(const std::string &encrypted_file_path,
     CryptoPP::GCM<CryptoPP::AES>::Decryption aes_gcm;
     aes_gcm.SetKeyWithIV(key.data(), key.size(), nonce.data(), nonce.size());
 
-    std::string recovered;
     CryptoPP::AuthenticatedDecryptionFilter decryption_filter(
         aes_gcm,
         new CryptoPP::StringSink(recovered),  // Critical: sink for plaintext
@@ -121,8 +121,6 @@ std::string EncDec::decrypt(const std::string &encrypted_file_path,
     decryption_filter.Put((const CryptoPP::byte *)mac.data(), mac.size());
     decryption_filter.Put((const CryptoPP::byte *)enc.data(), enc.size());
     decryption_filter.MessageEnd();
-
-    return recovered;
   } catch (CryptoPP::InvalidArgument &e) {
     std::cerr << "Caught InvalidArgument " << e.what() << std::endl;
   } catch (CryptoPP::AuthenticatedSymmetricCipher::BadState &e) {
@@ -132,4 +130,5 @@ std::string EncDec::decrypt(const std::string &encrypted_file_path,
   } catch (...) {
     std::cerr << "Unexpected Exception thrown\n";
   }
+  return recovered;
 }

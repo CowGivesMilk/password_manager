@@ -13,16 +13,16 @@ class Entry {
  private:
   std::optional<std::string> title, username, password, site, notes;
   std::optional<std::vector<std::string>> tags;
-  std::optional<std::chrono::sys_time<std::chrono::seconds>> exp_time;
+  std::optional<std::chrono::sys_seconds> exp_time;
 
  public:
   Entry(const std::optional<std::string>& title,
         const std::optional<std::string>& username,
         const std::optional<std::string>& password,
         const std::optional<std::string>& site,
+        const std::optional<std::string>& notes,
         const std::optional<std::vector<std::string>>& tags,
-        const std::optional<std::chrono::sys_time<std::chrono::seconds>>&
-            exp_time);
+        const std::optional<std::chrono::sys_seconds>& exp_time);
   const std::string to_string() const;
   json to_json() const;
 };

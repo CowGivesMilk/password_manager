@@ -12,7 +12,8 @@ class EncDec {
   generate_key_salt(const std::string &password) noexcept;
 
   static std::array<CryptoPP::byte, 32> generate_key_from_salt(
-      const std::string &password, const std::array<CryptoPP::byte, 16> &salt);
+      const std::string &password,
+      const std::array<CryptoPP::byte, 16> &salt) noexcept;
   static std::array<CryptoPP::byte, 12> generate_nonce() noexcept;
 
   static void encrypt(const std::string &file_path,

@@ -8,33 +8,35 @@
 #include <print>
 #include <string>
 
-Entry::Entry(
-    const std::optional<std::string>& title,
-    const std::optional<std::string>& username,
-    const std::optional<std::string>& password,
-    const std::optional<std::string>& site,
-    const std::optional<std::vector<std::string>>& tags,
-    const std::optional<std::chrono::sys_time<std::chrono::seconds>>& exp_time)
+Entry::Entry(const std::optional<std::string>& title,
+             const std::optional<std::string>& username,
+             const std::optional<std::string>& password,
+             const std::optional<std::string>& site,
+             const std::optional<std::string>& notes,
+             const std::optional<std::vector<std::string>>& tags,
+             const std::optional<std::chrono::sys_seconds>& exp_time)
     : title(title),
       username(username),
       password(password),
       site(site),
+      notes(notes),
       tags(tags),
       exp_time(exp_time) {}
 
 const std::string Entry::to_string() const {
   std::string date_time{}, tags_string{};
   if (exp_time.has_value()) {
-    date_time = std::format("%d %b %Y %T", exp_time.value());
+    date_time = std::format("{0:%Y-%m-%d %H:%M:%S}", exp_time.value());
   }
   if (tags.has_value()) {
     std::for_each(tags.value().begin(), tags.value().end(),
                   [&tags_string](std::string tag) { tags_string.append(tag); });
   }
   return std::format(
-      "Title: {}\nUsername: {}\nPassword: {}\nSite: {}\nDate Time: {}",
+      "Title: {}\nUsername: {}\nPassword: {}\nSite: {}\nNotes: {}\nDate Time: "
+      "{}",
       title.value_or(""), username.value_or(""), password.value_or(""),
-      site.value_or(""), date_time, tags_string);
+      site.value_or(""), notes.value_or(""), date_time, tags_string);
 }
 
 FileHandler::FileHandler(const std::string file_path) : file_path(file_path) {}
@@ -78,5 +80,13 @@ std::string FileHandler::read_file() {
 }
 json Entry::to_json() const {
   json j;
+  if (this->title) j["Title"] = this->title.value();
+  if (this->username) j["Username"] = this->username.value();
+  if (this->password) j["Password"] = this->password.value();
+  if (this->site) j["Site"] = this->site.value();
+  if (this->notes) j["Notes"] = this->notes.value();
+  if (this->tags) j["Tags"] = this->tags.value();
+  if (this->exp_time)
+    j["Expire Time"] = this->exp_time.value().time_since_epoch().count();
   return j;
 }

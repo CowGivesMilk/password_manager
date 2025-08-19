@@ -53,8 +53,12 @@ int main(int argc, char **argv) {
   std::println();
   PasswordGenerator pg(true, true, true, true);
   std::println("Random Characters: {}", pg.generatePassword(8));
+  std::chrono::sys_time<std::chrono::seconds> time =
+      std::chrono::time_point_cast<std::chrono::seconds>(
+          std::chrono::system_clock::now());
   Entry e("My Title", "user123", std::nullopt, "example.com", std::nullopt,
-          std::nullopt);
+          std::nullopt, time);
   std::println("{}", e.to_string());
+  std::println("{}", e.to_json().dump(4));
   return 0;
 }
