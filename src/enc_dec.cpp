@@ -57,43 +57,51 @@ std::array<CryptoPP::byte, 12> EncDec::generate_nonce() noexcept {
   prng.GenerateBlock(nonce.data(), nonce.size());
   return nonce;
 }
-void EncDec::encrypt(const std::string &file_path,
-                     const std::array<CryptoPP::byte, 32> &key,
-                     const std::array<CryptoPP::byte, 12> &nonce) {
-  std::string plain_text = FileHandler::read_file(file_path);
+
+std::string EncDec::encrypt(const std::string &plain_text,
+                            const std::array<CryptoPP::byte, 32> &key,
+                            const std::array<CryptoPP::byte, 12> &nonce) {
   if (plain_text.empty()) {
-    // std::cerr << "Empty file entered for input\n";
-    throw std::invalid_argument("Empty file to encrypt");
+    throw std::invalid_argument("Empty plain text to encrypt");
   }
+
+  std::string cipher;
   try {
-    std::string cipher;
     CryptoPP::GCM<CryptoPP::AES>::Encryption gcm_aes;
     gcm_aes.SetKeyWithIV(key.data(), key.size(), nonce.data(), nonce.size());
 
     CryptoPP::AuthenticatedEncryptionFilter encryption_filter(
-        gcm_aes, new CryptoPP::StringSink(cipher), false, 16);
+        gcm_aes, new CryptoPP::StringSink(cipher),
+        false,  // MAC at end
+        16      // MAC length
+    );
+
     encryption_filter.Put(
         reinterpret_cast<const CryptoPP::byte *>(plain_text.data()),
         plain_text.size());
     encryption_filter.MessageEnd();
-    std::ofstream encrypted_file(file_path + ".enc", std::ios::binary);
-    encrypted_file.write(reinterpret_cast<const char *>(nonce.data()),
-                         nonce.size());
-    encrypted_file.write(cipher.data(), cipher.size());
-  } catch (CryptoPP::BufferedTransformation::NoChannelSupport &e) {
-    std::cerr << "Caught NoChannelSupport " << e.what() << std::endl;
-  } catch (CryptoPP::AuthenticatedSymmetricCipher::BadState &e) {
-    std::cerr << "Caught BadState " << e.what() << std::endl;
-  } catch (CryptoPP::InvalidArgument &e) {
-    std::cerr << "Caught InvalidArgument " << e.what() << std::endl;
+
+    // Prepend nonce to ciphertext (same format as file version)
+    std::string result;
+    result.reserve(nonce.size() + cipher.size());
+    result.assign(reinterpret_cast<const char *>(nonce.data()), nonce.size());
+    result.append(cipher);
+
+    return result;
+  } catch (const CryptoPP::Exception &e) {
+    std::cerr << "CryptoPP error: " << e.what() << std::endl;
+    throw std::runtime_error("Encryption failed");
+  } catch (const std::exception &e) {
+    std::cerr << "Standard error: " << e.what() << std::endl;
+    throw;
   } catch (...) {
-    std::cerr << "Unexpected error occured\n";
+    std::cerr << "Unknown error occurred during encryption" << std::endl;
+    throw std::runtime_error("Unknown encryption error");
   }
 }
 
-std::string EncDec::decrypt(const std::string &encrypted_file_path,
+std::string EncDec::decrypt(const std::string &cipher,
                             const std::array<CryptoPP::byte, 32> &key) {
-  std::string cipher = FileHandler::read_file(encrypted_file_path);
   if (cipher.size() <= 12 + 16) {  // Check nonce + min ciphertext + MAC
     throw std::runtime_error(
         "File is too small to contain [IV cipher_text MAC]");

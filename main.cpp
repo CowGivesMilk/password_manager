@@ -46,11 +46,6 @@ int main(int argc, char **argv) {
     std::print("{:X} ", static_cast<uint8_t>(c));
   }
   std::println();
-  const std::string orignal_file_path =
-      "/home/nimes/Documents/projects/password_manager/poem.txt";
-  EncDec::encrypt(orignal_file_path, key_salt.first, nonce);
-  EncDec::decrypt(orignal_file_path + ".enc", key_salt.first);
-  std::println();
   PasswordGenerator pg(true, true, true, true);
   std::println("Random Characters: {}", pg.generatePassword(8));
   std::chrono::sys_time<std::chrono::seconds> time =

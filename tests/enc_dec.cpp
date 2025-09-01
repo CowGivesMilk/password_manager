@@ -11,3 +11,13 @@ TEST_CASE(
     "key from password and same salt") {
   REQUIRE(key_salt.first == key);
 }
+TEST_CASE("Encryptor decryptor") {
+  std::string orignal_text = "hjedlikwqherdl;ofihasdlf";
+  auto key_salt = EncDec::generate_key_salt("This is very strong password");
+  auto nonce = EncDec::generate_nonce();
+
+  std::string cipher = EncDec::encrypt(orignal_text, key_salt.first, nonce);
+  std::string decrypted_text = EncDec::decrypt(cipher, key_salt.first);
+
+  REQUIRE(orignal_text == decrypted_text);
+}
