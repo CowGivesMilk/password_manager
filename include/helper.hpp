@@ -1,11 +1,11 @@
 #ifndef HELPER_H
 #define HELPER_H
 #include <filesystem>
+#include <optional>
 #include <string>
 
 namespace helper {
-std::string get_db_path(char* exe);
-bool parse_size_t(const std::string& str, size_t& out);
+std::optional<size_t> parse_size_t(const std::string& str);
 }  // namespace helper
 
 #endif  // HELPER_H

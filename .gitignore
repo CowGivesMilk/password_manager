@@ -1,4 +1,5 @@
 build/
 .vscode/
+.cache/
 poem.txt.enc.dec
 poem.txt.enc

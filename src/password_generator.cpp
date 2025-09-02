@@ -26,24 +26,6 @@ PasswordGenerator::PasswordGenerator(bool numbers, bool small, bool capital,
   }
 }
 
-char PasswordGenerator::getRandomSymbol() {
-  int lower = 0, upper = this->symbols.size() - 1;
-  std::uniform_int_distribution<size_t> dist(lower, upper);
-  return symbols[dist(rng)];
-}
-char PasswordGenerator::getRandomNumber() {
-  std::uniform_int_distribution<int> dist(int('0'), int('9'));
-  return dist(rng);
-}
-char PasswordGenerator::getRandomCapital() {
-  std::uniform_int_distribution<int> dist(int('A'), int('Z'));
-  return dist(rng);
-}
-char PasswordGenerator::getRandomSmall() {
-  std::uniform_int_distribution<int> dist(int('a'), int('z'));
-  return dist(rng);
-}
-
 std::string PasswordGenerator::generatePassword(size_t length) {
   if (length > 999) {
     std::println(
@@ -53,14 +35,31 @@ std::string PasswordGenerator::generatePassword(size_t length) {
   }
   std::string password;
   password.reserve(length);
+
+  auto getRandomSymbol = [this]() {
+    int lower = 0, upper = this->symbols.size() - 1;
+    std::uniform_int_distribution<size_t> dist(lower, upper);
+    return symbols[dist(rng)];
+  };
+  auto getRandomNumber = [this]() {
+    std::uniform_int_distribution<int> dist(int('0'), int('9'));
+    return dist(rng);
+  };
+  auto getRandomCapital = [this]() {
+    std::uniform_int_distribution<int> dist(int('A'), int('Z'));
+    return dist(rng);
+  };
+  auto getRandomSmall = [this]() {
+    std::uniform_int_distribution<int> dist(int('a'), int('z'));
+    return dist(rng);
+  };
+
   std::vector<std::function<char()>> char_generators;
-  if (numbers)
-    char_generators.push_back([this]() { return getRandomNumber(); });
-  if (small) char_generators.push_back([this]() { return getRandomSmall(); });
-  if (capital)
-    char_generators.push_back([this]() { return getRandomCapital(); });
-  if (special_characters)
-    char_generators.push_back([this]() { return getRandomSymbol(); });
+  if (numbers) char_generators.push_back(getRandomNumber);
+  if (special_characters) char_generators.push_back(getRandomSymbol);
+  if (capital) char_generators.push_back(getRandomCapital);
+  if (small) char_generators.push_back(getRandomSmall);
+
   std::uniform_int_distribution<int> dist(0, char_generators.size() - 1);
   for (size_t i = 0; i < length; i++) {
     password.push_back(char_generators[dist(rng)]());

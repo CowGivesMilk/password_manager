@@ -17,11 +17,6 @@ class PasswordGenerator {
       '[', '\\', ']', '^', '_', '`', '{',  '|', '}', '~'};
   std::mt19937 rng;
 
-  char getRandomNumber();
-  char getRandomSmall();
-  char getRandomCapital();
-  char getRandomSymbol();
-
  public:
   PasswordGenerator();
   PasswordGenerator(bool numbers, bool small, bool capital,
