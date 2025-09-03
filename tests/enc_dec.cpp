@@ -13,11 +13,12 @@ TEST_CASE(
 }
 TEST_CASE("Encryptor decryptor") {
   std::string orignal_text = "hjedlikwqherdl;ofihasdlf";
+  std::string orignal_text_copy = orignal_text;
   auto key_salt = EncDec::generate_key_salt("This is very strong password");
   auto nonce = EncDec::generate_nonce();
 
   std::string cipher = EncDec::encrypt(orignal_text, key_salt.first, nonce);
   std::string decrypted_text = EncDec::decrypt(cipher, key_salt.first);
 
-  REQUIRE(orignal_text == decrypted_text);
+  REQUIRE(orignal_text_copy == decrypted_text);
 }

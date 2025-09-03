@@ -58,7 +58,7 @@ std::array<CryptoPP::byte, 12> EncDec::generate_nonce() noexcept {
   return nonce;
 }
 
-std::string EncDec::encrypt(const std::string &plain_text,
+std::string EncDec::encrypt(std::string &plain_text,
                             const std::array<CryptoPP::byte, 32> &key,
                             const std::array<CryptoPP::byte, 12> &nonce) {
   if (plain_text.empty()) {
@@ -81,12 +81,15 @@ std::string EncDec::encrypt(const std::string &plain_text,
         plain_text.size());
     encryption_filter.MessageEnd();
 
+    // Clear Plaintext data from memory
+    std::fill(plain_text.begin(), plain_text.end(), '\0');
+    plain_text.clear();
+
     // Prepend nonce to ciphertext (same format as file version)
     std::string result;
     result.reserve(nonce.size() + cipher.size());
     result.assign(reinterpret_cast<const char *>(nonce.data()), nonce.size());
     result.append(cipher);
-
     return result;
   } catch (const CryptoPP::Exception &e) {
     std::cerr << "CryptoPP error: " << e.what() << std::endl;

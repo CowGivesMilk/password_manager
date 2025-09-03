@@ -32,12 +32,9 @@ class FileHandler {
 
  public:
   FileHandler(const std::string file_path);
-  bool add_entry(const Entry& entry);
   std::string get_file_path() const;
-  static std::string read_file(
-      const std::filesystem::path path);  // Reads full file
-  static std::string read_file(const std::string path);
-  std::string read_file();
+  std::string read();
+  bool write(const std::string& str) const;
 };
 
 #endif  // FILE_HANDLER_H

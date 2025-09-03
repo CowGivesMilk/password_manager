@@ -16,7 +16,7 @@ class EncDec {
       const std::array<CryptoPP::byte, 16> &salt) noexcept;
   static std::array<CryptoPP::byte, 12> generate_nonce() noexcept;
 
-  static std::string encrypt(const std::string &plain_text,
+  static std::string encrypt(std::string &plain_text,
                              const std::array<CryptoPP::byte, 32> &key,
                              const std::array<CryptoPP::byte, 12> &nonce);
   static std::string decrypt(const std::string &cipher,

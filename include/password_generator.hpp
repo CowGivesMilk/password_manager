@@ -11,17 +11,17 @@ class PasswordGenerator {
   bool small;
   bool capital;
   bool special_characters;
-  const std::array<char, 32> symbols = {
-      '!', '"',  '#', '$', '%', '&', '\'', '(', ')', '*', '+',
-      ',', '-',  '.', '/', ':', ';', '<',  '=', '>', '?', '@',
-      '[', '\\', ']', '^', '_', '`', '{',  '|', '}', '~'};
-  std::mt19937 rng;
+  static constexpr std::string_view symbols =
+      R"(!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~)";
+  mutable std::mt19937 rng;
+
+  size_t min_length() const noexcept;
 
  public:
   PasswordGenerator();
   PasswordGenerator(bool numbers, bool small, bool capital,
                     bool special_characters);
-  std::string generatePassword(size_t length);
+  std::string generatePassword(size_t length) const;
 };
 
 #endif
