@@ -25,6 +25,13 @@ class Entry {
         const std::optional<std::chrono::sys_seconds>& exp_time);
   const std::string to_string() const;
   json to_json() const;
+  const std::optional<std::string>& getTitle() const;
+  const std::optional<std::string>& getUsername() const;
+  const std::optional<std::string>& getPassword() const;
+  const std::optional<std::string>& getSite() const;
+  const std::optional<std::string>& getNotes() const;
+  const std::optional<std::vector<std::string>>& getTags() const;
+  const std::optional<std::chrono::sys_seconds>& getExpTime() const;
 };
 class FileHandler {
  private:

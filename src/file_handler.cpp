@@ -22,7 +22,21 @@ Entry::Entry(const std::optional<std::string> &title,
       notes(std::move(notes)),
       tags(std::move(tags)),
       exp_time(std::move(exp_time)) {}
-
+const std::optional<std::string> &Entry::getTitle() const { return title; }
+const std::optional<std::string> &Entry::getUsername() const {
+  return username;
+}
+const std::optional<std::string> &Entry::getPassword() const {
+  return password;
+}
+const std::optional<std::string> &Entry::getSite() const { return site; }
+const std::optional<std::string> &Entry::getNotes() const { return notes; }
+const std::optional<std::vector<std::string>> &Entry::getTags() const {
+  return tags;
+}
+const std::optional<std::chrono::sys_seconds> &Entry::getExpTime() const {
+  return exp_time;
+}
 const std::string Entry::to_string() const {
   std::string date_time{}, tags_string{};
   if (exp_time.has_value()) {
