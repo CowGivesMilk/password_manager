@@ -3,7 +3,7 @@
 
 #include <catch2/catch_all.hpp>
 #include <catch2/catch_session.hpp>
-using json = nlohmann::json;
+#include <filesystem>
 using namespace Catch::Matchers;
 char* argv0;
 int main(int argc, char* argv[]) {
@@ -18,7 +18,3 @@ TEST_CASE("File Handler") {
   fh.write(text);
   REQUIRE(text == fh.read());
 }
-
-/*
-todo! add tests for Entry
-*/

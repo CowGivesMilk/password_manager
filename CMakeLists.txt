@@ -20,6 +20,7 @@ set(SOURCES
     src/file_handler.cpp
     src/helper.cpp
     src/enc_dec.cpp
+    src/data_handler.cpp
 )
 
 set(HEADERS
@@ -27,6 +28,7 @@ set(HEADERS
     include/file_handler.hpp
     include/helper.hpp
     include/enc_dec.hpp
+    include/data_handler.hpp
 )
 
 # -------------------- Core Static Library --------------------
@@ -58,6 +60,7 @@ set(TEST_SOURCES
     tests/file_handler.cpp
     tests/helper.cpp
     tests/enc_dec.cpp
+    tests/data_handler.cpp
 )
 
 add_executable(tests ${TEST_SOURCES})
