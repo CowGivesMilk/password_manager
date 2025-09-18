@@ -1,11 +1,20 @@
-#include <data_handler.hpp>
-Entry::Entry(const std::optional<std::string> &title,
-             const std::optional<std::string> &username,
-             const std::optional<std::string> &password,
-             const std::optional<std::string> &site,
-             const std::optional<std::string> &notes,
-             const std::optional<std::vector<std::string>> &tags,
-             const std::optional<std::chrono::sys_seconds> &exp_time)
+#include "data_handler.hpp"
+Entry::Entry()
+    : title(std::nullopt),
+      username(std::nullopt),
+      password(std::nullopt),
+      site(std::nullopt),
+      notes(std::nullopt),
+      tags(std::nullopt),
+      exp_time(std::nullopt) {}
+Entry::Entry(
+    const std::optional<std::string> &title,
+    const std::optional<std::string> &username,
+    const std::optional<std::string> &password,
+    const std::optional<std::string> &site,
+    const std::optional<std::string> &notes,
+    const std::optional<std::vector<std::string>> &tags,
+    const std::optional<std::chrono::system_clock::time_point> &exp_time)
     : title(std::move(title)),
       username(std::move(username)),
       password(std::move(password)),
@@ -13,19 +22,20 @@ Entry::Entry(const std::optional<std::string> &title,
       notes(std::move(notes)),
       tags(std::move(tags)),
       exp_time(std::move(exp_time)) {}
-const std::optional<std::string> &Entry::getTitle() const { return title; }
-const std::optional<std::string> &Entry::getUsername() const {
+const std::optional<std::string> &Entry::get_title() const { return title; }
+const std::optional<std::string> &Entry::get_username() const {
   return username;
 }
-const std::optional<std::string> &Entry::getPassword() const {
+const std::optional<std::string> &Entry::get_password() const {
   return password;
 }
-const std::optional<std::string> &Entry::getSite() const { return site; }
-const std::optional<std::string> &Entry::getNotes() const { return notes; }
-const std::optional<std::vector<std::string>> &Entry::getTags() const {
+const std::optional<std::string> &Entry::get_site() const { return site; }
+const std::optional<std::string> &Entry::get_notes() const { return notes; }
+const std::optional<std::vector<std::string>> &Entry::get_tags() const {
   return tags;
 }
-const std::optional<std::chrono::sys_seconds> &Entry::getExpTime() const {
+const std::optional<std::chrono::system_clock::time_point> &
+Entry::get_exp_time() const {
   return exp_time;
 }
 const std::string Entry::to_string() const {
@@ -56,3 +66,29 @@ json Entry::to_json() const {
     j["Expire Time"] = this->exp_time.value().time_since_epoch().count();
   return j;
 }
+
+Entry::Entry(const json &j)
+    : title(j.contains("Title")
+                ? std::make_optional(j.at("Title").get<std::string>())
+                : std::nullopt),
+      username(j.contains("Username")
+                   ? std::make_optional(j.at("Username").get<std::string>())
+                   : std::nullopt),
+      password(j.contains("Password")
+                   ? std::make_optional(j.at("Password").get<std::string>())
+                   : std::nullopt),
+      site(j.contains("Site")
+               ? std::make_optional(j.at("Site").get<std::string>())
+               : std::nullopt),
+      notes(j.contains("Notes")
+                ? std::make_optional(j.at("Notes").get<std::string>())
+                : std::nullopt),
+      tags(
+          j.contains("Tags")
+              ? std::make_optional(j.at("Tags").get<std::vector<std::string>>())
+              : std::nullopt),
+      exp_time(j.contains("Expire Time")
+                   ? std::make_optional(std::chrono::system_clock::time_point(
+                         std::chrono::system_clock::duration(
+                             j.at("Expire Time").get<long long>())))
+                   : std::nullopt) {}
