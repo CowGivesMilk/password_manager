@@ -30,7 +30,7 @@ size_t PasswordGenerator::min_length() const noexcept {
   return static_cast<size_t>(numbers + special_characters + small + capital);
 }
 
-std::string PasswordGenerator::generatePassword(size_t length) const {
+std::string PasswordGenerator::generatePassword(size_t length) const noexcept {
   if (length > 999) {
     std::println(
         "You don't need that long password.\nReturning 256 character long "

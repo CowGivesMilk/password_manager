@@ -21,7 +21,7 @@ class PasswordGenerator {
   PasswordGenerator();
   PasswordGenerator(bool numbers, bool small, bool capital,
                     bool special_characters);
-  std::string generatePassword(size_t length) const;
+  [[nodiscard]] std::string generatePassword(size_t length) const noexcept;
 };
 
 #endif

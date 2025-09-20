@@ -22,23 +22,30 @@ Entry::Entry(
       notes(std::move(notes)),
       tags(std::move(tags)),
       exp_time(std::move(exp_time)) {}
-const std::optional<std::string> &Entry::get_title() const { return title; }
-const std::optional<std::string> &Entry::get_username() const {
+const std::optional<std::string> &Entry::get_title() const noexcept {
+  return title;
+}
+const std::optional<std::string> &Entry::get_username() const noexcept {
   return username;
 }
-const std::optional<std::string> &Entry::get_password() const {
+const std::optional<std::string> &Entry::get_password() const noexcept {
   return password;
 }
-const std::optional<std::string> &Entry::get_site() const { return site; }
-const std::optional<std::string> &Entry::get_notes() const { return notes; }
-const std::optional<std::vector<std::string>> &Entry::get_tags() const {
+const std::optional<std::string> &Entry::get_site() const noexcept {
+  return site;
+}
+const std::optional<std::string> &Entry::get_notes() const noexcept {
+  return notes;
+}
+const std::optional<std::vector<std::string>> &Entry::get_tags()
+    const noexcept {
   return tags;
 }
 const std::optional<std::chrono::system_clock::time_point> &
-Entry::get_exp_time() const {
+Entry::get_exp_time() const noexcept {
   return exp_time;
 }
-const std::string Entry::to_string() const {
+const std::string Entry::to_string() const noexcept {
   std::string date_time{}, tags_string{};
   if (exp_time.has_value()) {
     date_time = std::format("{0:%Y-%m-%d %H:%M:%S}", exp_time.value());
@@ -54,7 +61,7 @@ const std::string Entry::to_string() const {
       site.value_or(""), notes.value_or(""), date_time, tags_string);
 }
 
-json Entry::to_json() const {
+json Entry::to_json() const noexcept {
   json j;
   if (this->title) j["Title"] = this->title.value();
   if (this->username) j["Username"] = this->username.value();

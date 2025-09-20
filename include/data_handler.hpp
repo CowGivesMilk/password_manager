@@ -15,14 +15,15 @@ class Entry {
   std::optional<std::chrono::system_clock::time_point> exp_time;
 
  public:
-  const std::optional<std::string>& get_title() const;
-  const std::optional<std::string>& get_username() const;
-  const std::optional<std::string>& get_password() const;
-  const std::optional<std::string>& get_site() const;
-  const std::optional<std::string>& get_notes() const;
-  const std::optional<std::vector<std::string>>& get_tags() const;
-  const std::optional<std::chrono::system_clock::time_point>& get_exp_time()
-      const;
+  [[nodiscard]] const std::optional<std::string>& get_title() const noexcept;
+  [[nodiscard]] const std::optional<std::string>& get_username() const noexcept;
+  [[nodiscard]] const std::optional<std::string>& get_password() const noexcept;
+  [[nodiscard]] const std::optional<std::string>& get_site() const noexcept;
+  [[nodiscard]] const std::optional<std::string>& get_notes() const noexcept;
+  [[nodiscard]] const std::optional<std::vector<std::string>>& get_tags()
+      const noexcept;
+  [[nodiscard]] const std::optional<std::chrono::system_clock::time_point>&
+  get_exp_time() const noexcept;
 
   Entry();
   Entry(const json& j);
@@ -34,7 +35,7 @@ class Entry {
         const std::optional<std::vector<std::string>>& tags,
         const std::optional<std::chrono::system_clock::time_point>& exp_time);
 
-  const std::string to_string() const;
-  json to_json() const;
+  [[nodiscard]] const std::string to_string() const noexcept;
+  [[nodiscard]] json to_json() const noexcept;
 };
 #endif

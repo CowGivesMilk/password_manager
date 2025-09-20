@@ -20,10 +20,9 @@
 const size_t ITERATIONS = 100'000;
 const CryptoPP::byte PURPOSE = 0;  // No purpose
 
-std::pair<std::array<CryptoPP::byte, 32>, std::array<CryptoPP::byte, 16>>
-EncDec::generate_key_salt(const std::string &password) noexcept {
-  std::pair<std::array<CryptoPP::byte, 32>, std::array<CryptoPP::byte, 16>>
-      result;
+std::pair<Key, Salt> EncDec::generate_key_salt(
+    const std::string &password) noexcept {
+  std::pair<Key, Salt> result;
 
   // Secure random salt generation
   CryptoPP::AutoSeededRandomPool prng;
@@ -40,27 +39,25 @@ EncDec::generate_key_salt(const std::string &password) noexcept {
   return result;
 }
 
-std::array<CryptoPP::byte, 32> EncDec::generate_key_from_salt(
-    const std::string &password,
-    const std::array<CryptoPP::byte, 16> &salt) noexcept {
-  std::array<CryptoPP::byte, 32> key;
+Key EncDec::generate_key_from_salt(const std::string &password,
+                                   const Salt &salt) noexcept {
+  Key key;
   CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
   pbkdf.DeriveKey(key.data(), key.size(), PURPOSE,
                   reinterpret_cast<const CryptoPP::byte *>(password.data()),
                   password.size(), salt.data(), salt.size(), ITERATIONS, 0);
   return key;
 }
-std::array<CryptoPP::byte, 12> EncDec::generate_nonce() noexcept {
-  std::array<CryptoPP::byte, 12> nonce;
+Nonce EncDec::generate_nonce() noexcept {
+  Nonce nonce;
   CryptoPP::AutoSeededRandomPool prng;
 
   prng.GenerateBlock(nonce.data(), nonce.size());
   return nonce;
 }
 
-std::string EncDec::encrypt(std::string &plain_text,
-                            const std::array<CryptoPP::byte, 32> &key,
-                            const std::array<CryptoPP::byte, 12> &nonce) {
+std::string EncDec::encrypt(std::string &plain_text, const Key &key,
+                            const Nonce &nonce) {
   if (plain_text.empty()) {
     throw std::invalid_argument("Empty plain text to encrypt");
   }
@@ -103,8 +100,7 @@ std::string EncDec::encrypt(std::string &plain_text,
   }
 }
 
-std::string EncDec::decrypt(const std::string &cipher,
-                            const std::array<CryptoPP::byte, 32> &key) {
+std::string EncDec::decrypt(const std::string &cipher, const Key &key) {
   if (cipher.size() <= 12 + 16) {  // Check nonce + min ciphertext + MAC
     throw std::runtime_error(
         "File is too small to contain [IV cipher_text MAC]");
@@ -112,7 +108,7 @@ std::string EncDec::decrypt(const std::string &cipher,
   std::string recovered;
   try {
     // Extract components
-    std::array<CryptoPP::byte, 12> nonce;
+    Nonce nonce;
     memcpy(nonce.data(), cipher.data(), 12);
     std::string enc = cipher.substr(12, cipher.size() - 12 - 16);
     std::string mac = cipher.substr(cipher.size() - 16);
