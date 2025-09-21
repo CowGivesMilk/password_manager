@@ -5,7 +5,7 @@
 #include <string>
 
 namespace helper {
-std::optional<size_t> parse_size_t(const std::string& str);
+[[nodiscard]] std::optional<size_t> parse_size_t(const std::string& str);
 }  // namespace helper
 
 #endif  // HELPER_H

@@ -9,16 +9,18 @@ typedef std::array<CryptoPP::byte, 32> Key;
 typedef std::array<CryptoPP::byte, 16> Salt;
 typedef std::array<CryptoPP::byte, 12> Nonce;
 class EncDec {
- public:
-  static std::pair<Key, Salt> generate_key_salt(
+ private:
+  [[nodiscard]] static std::pair<Key, Salt> generate_key_salt(
       const std::string &password) noexcept;
 
-  static Key generate_key_from_salt(const std::string &password,
-                                    const Salt &salt) noexcept;
-  static Nonce generate_nonce() noexcept;
+  [[nodiscard]] static Key generate_key_from_salt(const std::string &password,
+                                                  const Salt &salt) noexcept;
+  [[nodiscard]] static Nonce generate_nonce() noexcept;
 
-  static std::string encrypt(std::string &plain_text, const Key &key,
-                             const Nonce &nonce);
-  static std::string decrypt(const std::string &cipher, const Key &key);
+ public:
+  [[nodiscard]] static std::string encrypt(std::string &plain_text,
+                                           const std::string &password);
+  [[nodiscard]] static std::string decrypt(const std::string &cipher,
+                                           const std::string &password);
 };
 #endif  // ENC_DEC_H

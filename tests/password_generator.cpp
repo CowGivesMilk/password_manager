@@ -49,7 +49,7 @@ TEST_CASE("Constructer Tests") {
               only_numbers = numbers.generatePassword(20),
               only_symbols = symbols.generatePassword(20),
               fallback_small_str = fallback_small.generatePassword(20),
-              all = all_true.generatePassword(256);
+              all = all_true.generatePassword(20);
   Contains contains_small = string_contains(only_small),
            contains_capital = string_contains(only_capital),
            contains_numbers = string_contains(only_numbers),
@@ -77,7 +77,7 @@ TEST_CASE("Constructer Tests") {
       (not contains_small_fallback.cap and not contains_small_fallback.nums and
        contains_small_fallback.small and not contains_small_fallback.symbols));
 
-  // Contains ALL (PROBABILISTIC)
-  CHECK((contains_all.cap and contains_all.nums and contains_all.small and
-         contains_all.symbols));
+  // Contains ALL
+  REQUIRE((contains_all.cap and contains_all.nums and contains_all.small and
+           contains_all.symbols));
 }

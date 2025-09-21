@@ -56,8 +56,11 @@ Nonce EncDec::generate_nonce() noexcept {
   return nonce;
 }
 
-std::string EncDec::encrypt(std::string &plain_text, const Key &key,
-                            const Nonce &nonce) {
+std::string EncDec::encrypt(std::string &plain_text,
+                            const std::string &password) {
+  auto [key, salt] = generate_key_salt(password);
+  Nonce nonce = generate_nonce();
+
   if (plain_text.empty()) {
     throw std::invalid_argument("Empty plain text to encrypt");
   }
@@ -78,64 +81,74 @@ std::string EncDec::encrypt(std::string &plain_text, const Key &key,
         plain_text.size());
     encryption_filter.MessageEnd();
 
-    // Clear Plaintext data from memory
+    // Clear plaintext memory
     std::fill(plain_text.begin(), plain_text.end(), '\0');
     plain_text.clear();
 
-    // Prepend nonce to ciphertext (same format as file version)
+    // Build final output: salt || nonce || cipher+MAC
     std::string result;
-    result.reserve(nonce.size() + cipher.size());
-    result.assign(reinterpret_cast<const char *>(nonce.data()), nonce.size());
+    result.reserve(salt.size() + nonce.size() + cipher.size());
+    result.assign(reinterpret_cast<const char *>(salt.data()), salt.size());
+    result.append(reinterpret_cast<const char *>(nonce.data()), nonce.size());
     result.append(cipher);
+
     return result;
   } catch (const CryptoPP::Exception &e) {
     std::cerr << "CryptoPP error: " << e.what() << std::endl;
     throw std::runtime_error("Encryption failed");
-  } catch (const std::exception &e) {
-    std::cerr << "Standard error: " << e.what() << std::endl;
-    throw;
   } catch (...) {
     std::cerr << "Unknown error occurred during encryption" << std::endl;
     throw std::runtime_error("Unknown encryption error");
   }
 }
 
-std::string EncDec::decrypt(const std::string &cipher, const Key &key) {
-  if (cipher.size() <= 12 + 16) {  // Check nonce + min ciphertext + MAC
+std::string EncDec::decrypt(const std::string &file_blob,
+                            const std::string &password) {
+  if (file_blob.size() <= 16 + 12 + 16) {  // salt + nonce + MAC at minimum
     throw std::runtime_error(
-        "File is too small to contain [IV cipher_text MAC]");
+        "File too small to contain [salt nonce ciphertext MAC]");
   }
+
   std::string recovered;
   try {
-    // Extract components
-    Nonce nonce;
-    memcpy(nonce.data(), cipher.data(), 12);
-    std::string enc = cipher.substr(12, cipher.size() - 12 - 16);
-    std::string mac = cipher.substr(cipher.size() - 16);
+    // Extract salt (first 16 bytes)
+    Salt salt;
+    memcpy(salt.data(), file_blob.data(), salt.size());
 
-    // Decrypt
+    // Regenerate key
+    Key key = generate_key_from_salt(password, salt);
+
+    // Extract nonce (next 12 bytes)
+    Nonce nonce;
+    memcpy(nonce.data(), file_blob.data() + salt.size(), nonce.size());
+
+    // Extract ciphertext and MAC
+    size_t offset = salt.size() + nonce.size();
+    std::string enc = file_blob.substr(offset, file_blob.size() - offset - 16);
+    std::string mac = file_blob.substr(file_blob.size() - 16);
+
+    // Setup AES-GCM for decryption
     CryptoPP::GCM<CryptoPP::AES>::Decryption aes_gcm;
     aes_gcm.SetKeyWithIV(key.data(), key.size(), nonce.data(), nonce.size());
 
     CryptoPP::AuthenticatedDecryptionFilter decryption_filter(
-        aes_gcm,
-        new CryptoPP::StringSink(recovered),  // Critical: sink for plaintext
+        aes_gcm, new CryptoPP::StringSink(recovered),
         CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN |
             CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION,
         16);
 
-    // Feed MAC first then ciphertext
+    // Feed MAC first, then ciphertext
     decryption_filter.Put((const CryptoPP::byte *)mac.data(), mac.size());
     decryption_filter.Put((const CryptoPP::byte *)enc.data(), enc.size());
     decryption_filter.MessageEnd();
-  } catch (CryptoPP::InvalidArgument &e) {
-    std::cerr << "Caught InvalidArgument " << e.what() << std::endl;
-  } catch (CryptoPP::AuthenticatedSymmetricCipher::BadState &e) {
-    std::cerr << "Caught BadState " << e.what() << std::endl;
-  } catch (CryptoPP::HashVerificationFilter::HashVerificationFailed &e) {
-    std::cerr << "Caught HashVerificationFailed " << e.what() << std::endl;
+
+  } catch (const CryptoPP::Exception &e) {
+    std::cerr << "CryptoPP error: " << e.what() << std::endl;
+    throw std::runtime_error("Decryption failed");
   } catch (...) {
-    std::cerr << "Unexpected Exception thrown\n";
+    std::cerr << "Unexpected error during decryption" << std::endl;
+    throw std::runtime_error("Unknown decryption error");
   }
+
   return recovered;
 }

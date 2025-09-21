@@ -9,8 +9,8 @@ class FileHandler {
 
  public:
   FileHandler(const std::string file_path);
-  std::string get_file_path() const;
-  std::string read();
+  [[nodiscard]] std::string get_file_path() const;
+  [[nodiscard]] std::string read();
   bool write(const std::string& str) const;
 };
 
