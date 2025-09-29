@@ -3,7 +3,6 @@
 #include <cryptopp/aes.h>
 
 #include <array>
-#include <optional>
 #include <string>
 typedef std::array<CryptoPP::byte, 32> Key;
 typedef std::array<CryptoPP::byte, 16> Salt;

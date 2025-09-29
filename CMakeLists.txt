@@ -47,7 +47,6 @@ target_link_libraries(core_lib PUBLIC nlohmann_json::nlohmann_json)
 apply_warnings(core_lib)
 
 # -------------------- Main Executable --------------------
-file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/data/password.csv" CONTENT "")
 add_executable(password_manager main.cpp)
 target_link_libraries(password_manager PRIVATE core_lib)
 apply_warnings(password_manager)

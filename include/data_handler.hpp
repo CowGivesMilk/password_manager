@@ -26,7 +26,7 @@ class Entry {
   get_exp_time() const noexcept;
 
   Entry();
-  Entry(const json& j);
+  explicit Entry(const json& j);
   Entry(const std::optional<std::string>& title,
         const std::optional<std::string>& username,
         const std::optional<std::string>& password,
@@ -38,4 +38,8 @@ class Entry {
   [[nodiscard]] const std::string to_string() const noexcept;
   [[nodiscard]] json to_json() const noexcept;
 };
+std::vector<Entry> to_entry_list(const std::string& file_blob);
+json combine_json(const std::vector<json>& json_array);
+json combine_json(const std::vector<Entry>& entry_array);
+std::vector<Entry> to_entry_list(const json& json_array);
 #endif

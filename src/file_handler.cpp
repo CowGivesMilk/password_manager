@@ -1,16 +1,10 @@
 #include "file_handler.hpp"
 
 #include <filesystem>
-#include <format>
 #include <fstream>
-#include <iterator>
-#include <limits>
-#include <print>
 #include <string>
 
-
-
-FileHandler::FileHandler(const std::string file_path) : file_path(file_path) {}
+FileHandler::FileHandler(const std::string& file_path) : file_path(file_path) {}
 
 std::string FileHandler::get_file_path() const { return this->file_path; }
 
@@ -31,7 +25,7 @@ std::string FileHandler::read() {
   return result;
 }
 
-bool FileHandler::write(const std::string &str) const {
+bool FileHandler::write(const std::string& str) const {
   std::ofstream file(this->get_file_path());
   if (!file) {
     throw std::runtime_error("Cannot open file in output mode");

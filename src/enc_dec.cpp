@@ -4,7 +4,6 @@
 #include <cryptopp/aes.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/gcm.h>
-#include <cryptopp/hex.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/pwdbased.h>
 #include <cryptopp/sha.h>
@@ -12,13 +11,11 @@
 #include <array>
 #include <fstream>
 #include <iostream>
-#include <optional>
 #include <print>
 #include <string>
 
-#include "file_handler.hpp"
-const size_t ITERATIONS = 100'000;
-const CryptoPP::byte PURPOSE = 0;  // No purpose
+constexpr size_t ITERATIONS = 100'000;
+constexpr CryptoPP::byte PURPOSE = 0;  // No purpose
 
 std::pair<Key, Salt> EncDec::generate_key_salt(
     const std::string &password) noexcept {
@@ -29,7 +26,7 @@ std::pair<Key, Salt> EncDec::generate_key_salt(
   prng.GenerateBlock(result.second.data(), result.second.size());
 
   // Key derivation using PBKDF2-HMAC-SHA256
-  CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
+  const CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
   pbkdf.DeriveKey(result.first.data(), result.first.size(), PURPOSE,
                   reinterpret_cast<const CryptoPP::byte *>(password.data()),
                   password.size(), result.second.data(), result.second.size(),
@@ -42,7 +39,7 @@ std::pair<Key, Salt> EncDec::generate_key_salt(
 Key EncDec::generate_key_from_salt(const std::string &password,
                                    const Salt &salt) noexcept {
   Key key;
-  CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
+  const CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
   pbkdf.DeriveKey(key.data(), key.size(), PURPOSE,
                   reinterpret_cast<const CryptoPP::byte *>(password.data()),
                   password.size(), salt.data(), salt.size(), ITERATIONS, 0);
@@ -65,8 +62,8 @@ std::string EncDec::encrypt(std::string &plain_text,
     throw std::invalid_argument("Empty plain text to encrypt");
   }
 
-  std::string cipher;
   try {
+    std::string cipher;
     CryptoPP::GCM<CryptoPP::AES>::Encryption gcm_aes;
     gcm_aes.SetKeyWithIV(key.data(), key.size(), nonce.data(), nonce.size());
 
@@ -102,9 +99,9 @@ std::string EncDec::encrypt(std::string &plain_text,
   }
 }
 
-std::string EncDec::decrypt(const std::string &file_blob,
+std::string EncDec::decrypt(const std::string &cipher,
                             const std::string &password) {
-  if (file_blob.size() <= 16 + 12 + 16) {  // salt + nonce + MAC at minimum
+  if (cipher.size() <= 16 + 12 + 16) {  // salt + nonce + MAC at minimum
     throw std::runtime_error(
         "File too small to contain [salt nonce ciphertext MAC]");
   }
@@ -113,19 +110,19 @@ std::string EncDec::decrypt(const std::string &file_blob,
   try {
     // Extract salt (first 16 bytes)
     Salt salt;
-    memcpy(salt.data(), file_blob.data(), salt.size());
+    memcpy(salt.data(), cipher.data(), salt.size());
 
     // Regenerate key
     Key key = generate_key_from_salt(password, salt);
 
     // Extract nonce (next 12 bytes)
     Nonce nonce;
-    memcpy(nonce.data(), file_blob.data() + salt.size(), nonce.size());
+    memcpy(nonce.data(), cipher.data() + salt.size(), nonce.size());
 
     // Extract ciphertext and MAC
     size_t offset = salt.size() + nonce.size();
-    std::string enc = file_blob.substr(offset, file_blob.size() - offset - 16);
-    std::string mac = file_blob.substr(file_blob.size() - 16);
+    std::string enc = cipher.substr(offset, cipher.size() - offset - 16);
+    std::string mac = cipher.substr(cipher.size() - 16);
 
     // Setup AES-GCM for decryption
     CryptoPP::GCM<CryptoPP::AES>::Decryption aes_gcm;

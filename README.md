@@ -1,10 +1,10 @@
 # Password Manager
-An fully offline password manager which will use an file as password database which is unlocked by an master key. 
+A fully offline password manager which will use a file as password database which is unlocked by a master key. 
 
-> This is an attempt to make a cross platform password manager in C++. I don't know when this will get completed or reach an usable state because this is just a **hobby project under no deadline.**
+> This is an attempt to make a cross-platform password manager in C++. I don't know when this will get completed or reach a usable state because this is just a **hobby project under no deadline.**
 
 ## 🚧 Status
-**Currently in development. It is not in an usable state.**  
+**Currently, in development. It is not in a usable state.**  
 
 I am just writing APIs for the core functionality to make an GUI wrapper around it.
 
@@ -24,14 +24,14 @@ Make sure to edit it and replace *'make -j 8'* with *'make'* if you don't know a
     $ cd password_manager
     $ ./build.sh
 
-Execuitable will be: **passowrd_manager/build/password_manager**  
+Executable will be: **password_manager/build/password_manager**  
 Note: _I don't have an Apple Computer. So, I can not make sure it will work or not. I hope it will work since, I won't be using any OS Specific code._
 ### Windows
 I don't use Windows. So, I haven't made a build script for it. I'll do it later.  
 You can just compile it yourself. It's not hard.
 
 ## Contributions
-I want this as my personal solo project. So, I won't add any people as contributors. But, if you have a sugession or critique please tell me. 
+I want this as my personal solo project. So, I won't add any people as contributors. But, if you have a suggestion or critique please tell me. 
 ## 📜 License
 Licensed under the MIT License  
 © 2025 Nimesh Poudel aka CowGivesMilk

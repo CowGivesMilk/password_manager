@@ -1,7 +1,6 @@
 #include "password_generator.hpp"
 
 #include <algorithm>
-#include <array>
 #include <functional>
 #include <print>
 #include <random>
@@ -45,7 +44,7 @@ std::string PasswordGenerator::generatePassword(size_t length) const {
   password.reserve(length);
 
   auto getRandomSymbol = [this]() {
-    int lower = 0, upper = PasswordGenerator::symbols.size() - 1;
+    constexpr int upper = PasswordGenerator::symbols.size() - 1, lower = 0;
     std::uniform_int_distribution<size_t> dist(lower, upper);
     return static_cast<char>(symbols[dist(rng)]);
   };

@@ -15,13 +15,13 @@ Entry::Entry(
     const std::optional<std::string> &notes,
     const std::optional<std::vector<std::string>> &tags,
     const std::optional<std::chrono::system_clock::time_point> &exp_time)
-    : title(std::move(title)),
-      username(std::move(username)),
-      password(std::move(password)),
-      site(std::move(site)),
-      notes(std::move(notes)),
-      tags(std::move(tags)),
-      exp_time(std::move(exp_time)) {}
+    : title(title),
+      username(username),
+      password(password),
+      site(site),
+      notes(notes),
+      tags(tags),
+      exp_time(exp_time) {}
 const std::optional<std::string> &Entry::get_title() const noexcept {
   return title;
 }
@@ -51,8 +51,9 @@ const std::string Entry::to_string() const noexcept {
     date_time = std::format("{0:%Y-%m-%d %H:%M:%S}", exp_time.value());
   }
   if (tags.has_value()) {
-    std::for_each(tags.value().begin(), tags.value().end(),
-                  [&tags_string](std::string tag) { tags_string.append(tag); });
+    std::ranges::for_each(tags.value(), [&tags_string](std::string tag) {
+      tags_string.append(tag);
+    });
   }
   return std::format(
       "Title: {}\nUsername: {}\nPassword: {}\nSite: {}\nNotes: {}\nDate Time: "
@@ -99,3 +100,35 @@ Entry::Entry(const json &j)
                          std::chrono::system_clock::duration(
                              j.at("Expire Time").get<long long>())))
                    : std::nullopt) {}
+std::vector<Entry> to_entry_list(const std::string &file_blob) {
+  json json_array = json::parse(file_blob);
+  std::vector<Entry> entry_list;
+  for (const auto &j : json_array) {
+    entry_list.emplace_back(Entry(j));
+  }
+  return entry_list;
+}
+json combine_json(const std::vector<json> &json_array) {
+  json combined = json::array();
+  for (const auto &j : json_array) {
+    combined.push_back(j);
+  }
+  return combined;
+}
+json combine_json(const std::vector<Entry> &entry_array) {
+  json combined = json::array();
+  for (const auto &e : entry_array) {
+    combined.emplace_back(e.to_json());
+  }
+  return combined;
+}
+std::vector<Entry> to_entry_list(const json &json_array) {
+  if (not json_array.is_array()) {
+    throw std::invalid_argument("json_array must be array");
+  }
+  std::vector<Entry> entry_list;
+  for (const auto &j : json_array) {
+    entry_list.emplace_back(Entry(j));
+  }
+  return entry_list;
+}
