@@ -1,4 +1,4 @@
-#include "password_generator.hpp"
+#include "core/password_generator.hpp"
 
 #include <catch2/catch_all.hpp>
 #include <iostream>

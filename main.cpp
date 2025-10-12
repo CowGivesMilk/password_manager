@@ -1,12 +1,12 @@
 #include <QApplication>
-#include <QPushButton>
+
+#include "gui/test_window.hpp"
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
 
-  QPushButton button("Hello, Qt!");
-  button.resize(200, 100);
-  button.show();
+  TestWindow window;
+  window.show();
 
   return app.exec();
 }

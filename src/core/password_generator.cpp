@@ -1,4 +1,4 @@
-#include "password_generator.hpp"
+#include "core/password_generator.hpp"
 
 #include <algorithm>
 #include <functional>

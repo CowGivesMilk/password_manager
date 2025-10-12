@@ -1,4 +1,4 @@
-#include "enc_dec.hpp"
+#include "core/enc_dec.hpp"
 
 #include <catch2/catch_all.hpp>
 
